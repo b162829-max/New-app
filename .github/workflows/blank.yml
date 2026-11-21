@@ -21,17 +21,17 @@ jobs:
           ZIP_FILE=$(find . -maxdepth 1 -type f -iname "*.zip" | head -n 1)
 
           if [ -z "$ZIP_FILE" ]; then
-            echo "No ZIP file found in repository root"
+            echo "No ZIP file found"
             exit 1
           fi
 
           mkdir source
           unzip -q "$ZIP_FILE" -d source
 
-          PROJECT_DIR=$(find source -type f \( -name "settings.gradle" -o -name "settings.gradle.kts" \) -print -quit | xargs dirname)
+          PROJECT_DIR=$(find source -type f \( -name "settings.gradle" -o -name "settings.gradle.kts" \) -print -quit | xargs -r dirname)
 
-          if [ -z "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/app/build.gradle" ] && [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
-            echo "Android project not found in ZIP"
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "Android project not found"
             exit 1
           fi
 
@@ -45,7 +45,9 @@ jobs:
           java-version: "17"
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
 
       - name: Install Android SDK
         run: |
